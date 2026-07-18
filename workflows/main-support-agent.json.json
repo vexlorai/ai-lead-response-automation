@@ -1,0 +1,1954 @@
+{
+  "name": "All-in-One AI Customer Support Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "maxResults": 1,
+        "filters": {
+          "labelIds": [
+            "Label_9106775214182915075"
+          ],
+          "q": "-from:me -subject:\"HOT LEAD ALERT\" -subject:\"Naya Hot Lead\" -subject:\"Quick call to discuss\"",
+          "readStatus": "unread"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -1664,
+        368
+      ],
+      "id": "e41f2527-3187-415a-86f6-90ed7c58a709",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JaX4sgcsTVNjnQu8",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -1648,
+        48
+      ],
+      "id": "5e8cbe8a-7a3d-4a3b-bae4-ffe2528d3b27",
+      "name": "When chat message received",
+      "webhookId": "b7422db3-2bc0-4d12-a619-2d29f63cd252"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.previousContext }}Subject: {{ $json.subject }}\nCurrent message: {{ $json.message }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a professional customer support agent for a software house that specializes in Android and iOS mobile app development. Your name is Alex.\n\nYour company offers these services:\n- Android app development\n- iOS app development\n- UI/UX design for mobile apps\n- App maintenance and updates\n- App Store and Google Play publishing\n\nHow you behave:\n- Always be professional, friendly and helpful\n- Keep replies concise and clear\n- If someone asks about pricing, say \"Our pricing depends on project requirements. Please share your app idea and we will provide a custom quote within 24 hours.\"\n- If someone wants to discuss a project, ask for: their name, app idea, and preferred platform (Android/iOS/both)\n- If someone has a complaint or urgent issue, say \"I understand your concern. I am escalating this to our team and someone will contact you within 2 hours.\"\n- Always end your reply by asking if there is anything else you can help with\nIf asked something outside mobile app development, politely say this is outside your area and redirect to your services.\n\nKNOWLEDGE BASE TOOL:\nYou MUST call the company_knowledge_base tool BEFORE answering any question that involves pricing, cost, budget, timelines, specific services, payment terms, or company policies. Never answer these topics from memory or guess — always check the tool first, then base your reply on what it returns. Only use the standard \"Our pricing depends on project requirements\" response if the tool returns no relevant information.\n\nIMPORTANT - Carefully analyze every message and detect the CORRECT category:\n\nHOT_LEAD - ONLY if message clearly mentions ALL of these:\n- Specific budget amount (e.g. \"$3000\", \"budget is 5000\")\n- OR urgency (e.g. \"urgent\", \"asap\", \"start this week\", \"immediately\")\n- AND clear intent to hire/buy\n\nNEW_LEAD - If someone is interested but just exploring:\n- Asking about services, process, timeline\n- No budget mentioned\n- Just wants information to decide\n\nEXISTING_CLIENT - If they mention:\n- Previous project with you\n- Ongoing work\n- \"my app\", \"our previous discussion\"\n\nCOMPLAINT - If they are:\n- Frustrated, angry, unhappy\n- Reporting a problem or bug\n- Threatening to leave\n\nGENERAL_INQUIRY - Everything else:\n- Random questions\n- Just saying hi\n- Unrelated topics\n- Simple greetings\n\nAlso assign a LEAD_SCORE based on:\n- High: Message clearly mentions a specific budget AND urgency (e.g. \"asap\", \"urgent\", \"this week\") AND buying intent\n- Medium: Interested and asking detailed questions (process, pricing, timeline) but no budget or urgency mentioned yet\n- Low: Casual inquiry, greeting, or general question with no real buying signal\n\nMEMORY CONTEXT:\nIf a \"Previous conversation with this customer\" section appears above the current message, use that context naturally in your reply — greet the customer by referencing what was discussed before if relevant (e.g., a previous complaint, a previous quote, or an ongoing project). Do not repeat the exact same reply as before; acknowledge the history and move the conversation forward. If no such section appears, treat this as a new customer with no prior history and respond normally.\n\nOUTPUT FORMAT:\nYou must respond with a valid JSON object containing exactly these four fields:\n- \"reply\": your natural, professional customer-facing response (do not include category or score here)\n- \"category\": one of exactly these values: HOT_LEAD, NEW_LEAD, EXISTING_CLIENT, COMPLAINT, GENERAL_INQUIRY\n- \"lead_score\": one of exactly these values: High, Medium, Low\n- \"phone_number\": if the customer explicitly provided a phone number anywhere in their message, extract it exactly as written. If no phone number was mentioned, return an empty string \"\".\n\nExample:\n{\n  \"reply\": \"Thank you for reaching out! We'd love to help you build your app. Could you share more details about your project timeline?\",\n  \"category\": \"NEW_LEAD\",\n  \"lead_score\": \"Medium\",\n  \"phone_number\": \"\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -832,
+        128
+      ],
+      "id": "39e48616-e5b6-4fec-9272-be9b791ed59e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -944,
+        448
+      ],
+      "id": "5b52aeef-5883-4169-a7d1-96bef6986e32",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $('AI Agent').item.json.output.reply }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -144,
+        560
+      ],
+      "id": "29057762-2eab-41a1-8973-a3e92b1e4291",
+      "name": "Reply to a message",
+      "webhookId": "3164b458-4d80-4afb-ab70-b83019c0b697",
+      "executeOnce": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "OG8E3SpF0X7HCotC",
+          "name": "Gmail account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3148a94c-5a72-44a7-a72e-ec573e6f71b8",
+              "name": "message",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "fce3dad4-c059-4b57-b60a-cb64127be7e9",
+              "name": "channel",
+              "value": "Chat",
+              "type": "string"
+            },
+            {
+              "id": "d64ada2f-2da7-49da-a91f-27d3f2f202cd",
+              "name": "sender",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "4e2c687b-c707-477f-bae8-836d6f3e0628",
+              "name": "previousContext",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1488,
+        48
+      ],
+      "id": "d9f5b89d-f67c-419b-b025-cb35c7894cc2",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fb670890-7479-44b3-846c-7730d3c9cde6",
+              "name": "message",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "cb4823e8-7c62-4416-bba1-f18266242403",
+              "name": "channel",
+              "value": "Email",
+              "type": "string"
+            },
+            {
+              "id": "b8b3f3d3-1ea1-4494-b56b-69bb0a05848d",
+              "name": "sender",
+              "value": "={{ $json.from.text }}",
+              "type": "string"
+            },
+            {
+              "id": "1908803c-9d76-4cac-bebc-c77742ee26f6",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1488,
+        368
+      ],
+      "id": "80091c83-4dbf-42f8-a963-e5e0e8979e8f",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1024,
+        160
+      ],
+      "id": "2c31220c-3724-4369-9fa0-d6c21901d396",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "apprWWHizgxDasSCq",
+          "mode": "list",
+          "cachedResultName": "AI Support Agent",
+          "cachedResultUrl": "https://airtable.com/apprWWHizgxDasSCq"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblpldTBbc6CQKpkT",
+          "mode": "list",
+          "cachedResultName": "Conversations",
+          "cachedResultUrl": "https://airtable.com/apprWWHizgxDasSCq/tblpldTBbc6CQKpkT"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer Name": "={{ $('Merge').item.json.sender }}",
+            "Channel": "={{ $('Merge').item.json.channel.trim() }}",
+            "Message": "={{ $('Merge').item.json.message }}",
+            "AI Reply": "={{ $('AI Agent').item.json.output.reply }}",
+            "Category": "={{ $('AI Agent').item.json.output.category }}",
+            "Date/Time": "={{ new Date().toISOString() }}",
+            "Status": "Open",
+            "Lead Score": "={{ $('AI Agent').item.json.output.lead_score }}",
+            "Call Attempt Count": 0,
+            "Subject": "={{ $('Merge').item.json.subject }}",
+            "Phone Number": "={{ $('AI Agent').item.json.output.phone_number }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Channel",
+              "displayName": "Channel",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Email",
+                  "value": "Email"
+                },
+                {
+                  "name": "Chat",
+                  "value": "Chat"
+                },
+                {
+                  "name": "WhatsApp",
+                  "value": "WhatsApp"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI Reply",
+              "displayName": "AI Reply",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "HOT_LEAD",
+                  "value": "HOT_LEAD"
+                },
+                {
+                  "name": "COMPLAINT",
+                  "value": "COMPLAINT"
+                },
+                {
+                  "name": "NEW_LEAD",
+                  "value": "NEW_LEAD"
+                },
+                {
+                  "name": "EXISTING_CLIENT",
+                  "value": "EXISTING_CLIENT"
+                },
+                {
+                  "name": "GENERAL_INQUIRY",
+                  "value": "GENERAL_INQUIRY"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date/Time",
+              "displayName": "Date/Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Open",
+                  "value": "Open"
+                },
+                {
+                  "name": "Resolved",
+                  "value": "Resolved"
+                },
+                {
+                  "name": "Escalated",
+                  "value": "Escalated"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Score",
+              "displayName": "Lead Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "High",
+                  "value": "High"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "Low",
+                  "value": "Low"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timezone",
+              "displayName": "Timezone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Call Status",
+              "displayName": "Call Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Call Time",
+              "displayName": "Scheduled Call Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Calendar Event ID",
+              "displayName": "Calendar Event ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Call Attempt Count",
+              "displayName": "Call Attempt Count",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Call Summary",
+              "displayName": "Call Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Deal Outcome",
+              "displayName": "Deal Outcome",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -848,
+        -224
+      ],
+      "id": "721fa419-c2b6-4146-bf50-66e0cb96b09a",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "dGW4vwm4O1pf9iyd",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('AI Agent').item.json.output.category }}",
+                    "rightValue": "HOT_LEAD",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "e2f8806c-3e56-4592-ad5d-672268ecf921"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Hot Lead"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "476fbf28-1ceb-4be0-93d2-c7ade19026ec",
+                    "leftValue": "={{ $('AI Agent').item.json.output.category }}",
+                    "rightValue": "NEW_LEAD",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "New Lead"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d6269c96-c678-47f4-8540-7af2c2e3122c",
+                    "leftValue": "={{ $('AI Agent').item.json.output.category }}",
+                    "rightValue": "EXISTING_CLIENT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Existing Client"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "42cda2cc-71dc-46a7-9b94-ee311af4331e",
+                    "leftValue": "={{ $('AI Agent').item.json.output.category }}",
+                    "rightValue": "COMPLAINT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Complaint"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "8326c5ea-be0a-4e99-a712-97257afe933b",
+                    "leftValue": "={{ $('AI Agent').item.json.output.category }}",
+                    "rightValue": "GENERAL_INQUIRY",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "General Inquiry"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -576,
+        -416
+      ],
+      "id": "2de644b8-a039-48c3-9aff-c7e62dfd2aa2",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_9017246489905191411"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        304
+      ],
+      "id": "8c2b9cc2-0f3c-4e66-843a-12fbc6ab9289",
+      "name": "Add label to message2",
+      "webhookId": "4c513c31-1ae5-4df9-9b97-319c09ccb94b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JaX4sgcsTVNjnQu8",
+          "name": "Gmail OAuth2 API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "apprWWHizgxDasSCq",
+          "mode": "list",
+          "cachedResultName": "AI Support Agent",
+          "cachedResultUrl": "https://airtable.com/apprWWHizgxDasSCq"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblpldTBbc6CQKpkT",
+          "mode": "list",
+          "cachedResultName": "Conversations",
+          "cachedResultUrl": "https://airtable.com/apprWWHizgxDasSCq/tblpldTBbc6CQKpkT"
+        },
+        "filterByFormula": "={Customer Name} = '{{ $json.sender }}'",
+        "returnAll": false,
+        "limit": 1,
+        "options": {},
+        "sort": {
+          "property": [
+            {
+              "field": "Date/Time",
+              "direction": "desc"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -1344,
+        368
+      ],
+      "id": "7903df66-5a3e-42a8-a504-24148ac0a948",
+      "name": "Search records",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "dGW4vwm4O1pf9iyd",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2cef1088-e2db-477e-847e-42cc6c3205e1",
+              "name": "previousContext",
+              "value": "={{ $json.fields && $json.fields.Message ? \"Previous conversation with this customer:\\n- They said: \" + $json.fields.Message + \"\\n- We replied: \" + $json.fields['AI Reply'] + \"\\n\\n\" : \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "423ecd74-5683-481c-9a6e-ad13cf3792bf",
+              "name": "message",
+              "value": "={{ $('Edit Fields1').item.json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "395c64ee-020e-41be-a143-92fba65a9b7d",
+              "name": "channel",
+              "value": "={{ $('Edit Fields1').item.json.channel }}",
+              "type": "string"
+            },
+            {
+              "id": "14e8b970-7cae-49b9-8986-58113eff0ac4",
+              "name": "sender",
+              "value": "={{ $('Edit Fields1').item.json.sender }}",
+              "type": "string"
+            },
+            {
+              "id": "2c780a79-34d2-4ec6-815c-72a88970d552",
+              "name": "subject",
+              "value": "={{ $('Edit Fields1').item.json.subject }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1168,
+        496
+      ],
+      "id": "ada20921-3ad9-434d-80ca-89f93b6834ec",
+      "name": "Build Memory Context"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -752,
+        624
+      ],
+      "id": "5ecff83d-9a3d-44f5-84f3-f43c5c636314",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Search the company knowledge base for exact pricing, timelines, services, payment terms, and FAQs. Call this tool whenever the customer asks about cost, price, budget, timeline, or specific services.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "company-knowledge-base",
+          "mode": "list",
+          "cachedResultName": "company-knowledge-base"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -816,
+        432
+      ],
+      "id": "9a9c5699-c06f-47c8-ac59-27cf532cd947",
+      "name": "company_knowledge_base",
+      "credentials": {
+        "pineconeApi": {
+          "id": "ZVuGdM0g8QtM3pn2",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"reply\": \"Thank you for reaching out! We'd love to help you...\",\n  \"category\": \"HOT_LEAD\",\n  \"lead_score\": \"High\",\n   \"phone_number\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -656,
+        320
+      ],
+      "id": "42aeba04-8129-4444-bf16-4ad6dbc1fc79",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "sendTo": "sbborfarooq@gmail.com",
+        "subject": "🌱 New Lead Alert",
+        "emailType": "text",
+        "message": "=Naya New Lead aaya hai!  Customer: {{ $('Merge').item.json.sender }} Subject: {{ $('Merge').item.json.subject }} Channel: {{ $('Merge').item.json.channel }} Message: {{ $('Merge').item.json.message }}  AI Reply Bhi Bheji Ja Chuki Hai. Lead Score: {{ $('AI Agent').item.json.output.lead_score }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        496,
+        -128
+      ],
+      "id": "c47760c6-44cc-4132-9f4e-7b844cd8a8e9",
+      "name": "New Lead - Gmail Alert",
+      "webhookId": "331a8dc6-ac19-4924-b49a-0f4e6c4419c3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JaX4sgcsTVNjnQu8",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "apprWWHizgxDasSCq",
+          "mode": "list",
+          "cachedResultName": "AI Support Agent",
+          "cachedResultUrl": "https://airtable.com/apprWWHizgxDasSCq"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblpldTBbc6CQKpkT",
+          "mode": "list",
+          "cachedResultName": "Conversations",
+          "cachedResultUrl": "https://airtable.com/apprWWHizgxDasSCq/tblpldTBbc6CQKpkT"
+        },
+        "filterByFormula": "={Customer Name} = '{{ $('Merge').item.json.sender }}'",
+        "returnAll": false,
+        "limit": 1,
+        "options": {},
+        "sort": {
+          "property": [
+            {
+              "field": "Date/Time",
+              "direction": "desc"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        288,
+        -560
+      ],
+      "id": "9f7d6e1e-9abd-480f-90c9-c147c05d20ed",
+      "name": "Hot Lead - Find Customer Record",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "dGW4vwm4O1pf9iyd",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "apprWWHizgxDasSCq",
+          "mode": "list",
+          "cachedResultName": "AI Support Agent",
+          "cachedResultUrl": "https://airtable.com/apprWWHizgxDasSCq"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblpldTBbc6CQKpkT",
+          "mode": "list",
+          "cachedResultName": "Conversations",
+          "cachedResultUrl": "https://airtable.com/apprWWHizgxDasSCq/tblpldTBbc6CQKpkT"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "Call Attempt Count": 0
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Channel",
+              "displayName": "Channel",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Email",
+                  "value": "Email"
+                },
+                {
+                  "name": "Chat",
+                  "value": "Chat"
+                },
+                {
+                  "name": "WhatsApp",
+                  "value": "WhatsApp"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "AI Reply",
+              "displayName": "AI Reply",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "HOT_LEAD",
+                  "value": "HOT_LEAD"
+                },
+                {
+                  "name": "COMPLAINT",
+                  "value": "COMPLAINT"
+                },
+                {
+                  "name": "NEW_LEAD",
+                  "value": "NEW_LEAD"
+                },
+                {
+                  "name": "EXISTING_CLIENT",
+                  "value": "EXISTING_CLIENT"
+                },
+                {
+                  "name": "GENERAL_INQUIRY",
+                  "value": "GENERAL_INQUIRY"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Date/Time",
+              "displayName": "Date/Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Open",
+                  "value": "Open"
+                },
+                {
+                  "name": "Resolved",
+                  "value": "Resolved"
+                },
+                {
+                  "name": "Escalated",
+                  "value": "Escalated"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Lead Score",
+              "displayName": "Lead Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "High",
+                  "value": "High"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "Low",
+                  "value": "Low"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timezone",
+              "displayName": "Timezone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Call Status",
+              "displayName": "Call Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Call Time",
+              "displayName": "Scheduled Call Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Calendar Event ID",
+              "displayName": "Calendar Event ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Call Attempt Count",
+              "displayName": "Call Attempt Count",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Call Summary",
+              "displayName": "Call Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Deal Outcome",
+              "displayName": "Deal Outcome",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        496,
+        -544
+      ],
+      "id": "5b308131-d74d-472c-87d4-219a73d9d6a8",
+      "name": "Hot Lead - Update Customer Record",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "dGW4vwm4O1pf9iyd",
+          "name": "Airtable account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_9080662730276278752"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        -528
+      ],
+      "id": "dc9059bb-224b-4b28-936e-7993d7e740a8",
+      "name": "Hot Lead - Add Gmail Label",
+      "webhookId": "38c13258-fe66-4be1-8f14-5cd2acec903d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JaX4sgcsTVNjnQu8",
+          "name": "Gmail OAuth2 API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5481bbbd-1314-4716-b05d-108664a3cff6",
+              "leftValue": "={{ $('AI Agent').item.json.output.phone_number }}  is not empty",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        -192
+      ],
+      "id": "ee0f0b42-2166-4ccd-999f-cbc18eb09f98",
+      "name": "Hot Lead - Check Phone Number"
+    },
+    {
+      "parameters": {
+        "sendTo": "sbborfarooq@gmail.com",
+        "subject": "🔥 HOT LEAD ALERT - Contact Now!",
+        "emailType": "text",
+        "message": "=Naya Hot Lead aaya hai!  Customer: {{ $('Merge').item.json.sender }} Channel: {{ $('Merge').item.json.channel }} Message: {{ $('Merge').item.json.message }}  Turant contact karo!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        928,
+        -512
+      ],
+      "id": "b7d6a730-5417-4c34-b2a4-43e4a3749f95",
+      "name": "Hot Lead - Owner Alert (Gmail)",
+      "webhookId": "006b0b64-bfea-4de4-a520-f88274de77ae",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JaX4sgcsTVNjnQu8",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BH3996LTY",
+          "mode": "list",
+          "cachedResultName": "hot-leads"
+        },
+        "text": "=🔥 Naya Hot Lead aaya hai!  Customer: {{ $('Merge').item.json.sender }} Channel: {{ $('Merge').item.json.channel }} Message: {{ $('Merge').item.json.message }}  Turant contact karo!",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        1104,
+        -512
+      ],
+      "id": "0d1bb88f-1525-4b58-afe5-02c70d74488e",
+      "name": "Hot Lead - Owner Alert (Slack)",
+      "webhookId": "fa26c881-02f3-4059-b751-a73d2d3d349d",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "etvDTEa6B8J6xck7",
+          "name": "Slack OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "listId": "6a56037fedc812381d0e160d",
+        "name": "={{ $('Merge').item.json.sender }} - {{ $('Merge').item.json.subject }}",
+        "description": "=Message: {{ $('Merge').item.json.message }}  AI Reply: {{ $('AI Agent').item.json.output.reply }}  Category: {{ $('AI Agent').item.json.output.category }} Lead Score: {{ $('AI Agent').item.json.output.lead_score }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.trello",
+      "typeVersion": 1,
+      "position": [
+        400,
+        80
+      ],
+      "id": "7eb0ff65-5d6a-495a-99d0-c752d6afea69",
+      "name": "New Lead - Trello Card",
+      "credentials": {
+        "trelloApi": {
+          "id": "VBFPHMIbxvAvyVyR",
+          "name": "Trello account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "listId": "6a571e960aabaf90c5b07484",
+        "name": "={{ $('Merge').item.json.sender }} - {{ $('Merge').item.json.subject }}",
+        "description": "=Message: {{ $('Merge').item.json.message }}  AI Reply: {{ $('AI Agent').item.json.output.reply }}  Category: {{ $('AI Agent').item.json.output.category }} Lead Score: {{ $('AI Agent').item.json.output.lead_score }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.trello",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -352
+      ],
+      "id": "b0f2da97-2342-4938-9b19-33beeee0608c",
+      "name": "Existing Client - Trello Card",
+      "credentials": {
+        "trelloApi": {
+          "id": "VBFPHMIbxvAvyVyR",
+          "name": "Trello account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "sbborfarooq@gmail.com",
+        "subject": "👤 Existing Client Message",
+        "emailType": "text",
+        "message": "=Existing client ne message bheja hai!  Customer: {{ $('Merge').item.json.sender }} Subject: {{ $('Merge').item.json.subject }} Channel: {{ $('Merge').item.json.channel }}  Message: {{ $('Merge').item.json.message }}  AI Reply Sent: {{ $('AI Agent').item.json.output.reply }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        -320
+      ],
+      "id": "7975eb58-3066-4d01-a075-8afd88411567",
+      "name": "Existing Client - Owner Alert (Gmail)",
+      "webhookId": "a9ff5b1d-4fc3-487f-a6f9-3aa45fbd083d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JaX4sgcsTVNjnQu8",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BHGEB8FPB",
+          "mode": "list",
+          "cachedResultName": "complaints"
+        },
+        "text": "=⚠️ URGENT COMPLAINT ALERT ⚠️  Customer: {{ $('Merge').item.json.sender }} Subject: {{ $('Merge').item.json.subject }} Channel: {{ $('Merge').item.json.channel }}  Complaint Details: {{ $('Merge').item.json.message }}  AI Reply Sent: {{ $('AI Agent').item.json.output.reply }}  ⏰ Please respond ASAP — customer satisfaction at risk!",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        -160,
+        240
+      ],
+      "id": "2b702318-e42c-47f9-8896-137d6dc467e5",
+      "name": "Complaint - Owner Alert (Slack)",
+      "webhookId": "93c458db-aa6d-48db-b9ef-d00cfd132dcd",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "etvDTEa6B8J6xck7",
+          "name": "Slack OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_1365756723877636076"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        576
+      ],
+      "id": "3ac25bc9-eb88-4319-a385-944d8dc4605d",
+      "name": "Complaint - Add Gmail Label (2)",
+      "webhookId": "37d79848-7eb0-440a-b3ec-50f670b28633",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JaX4sgcsTVNjnQu8",
+          "name": "Gmail OAuth2 API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_5468641026783491126"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -496,
+        80
+      ],
+      "id": "a5756a7f-4827-4e3b-b818-a3314d4c58c4",
+      "name": "General Inquiry - Client Reply (Gmail)",
+      "webhookId": "f4230f13-fcbb-46b5-81b1-812e682c87e9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JaX4sgcsTVNjnQu8",
+          "name": "Gmail OAuth2 API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Merge').item.json.sender.match(/<(.+)>/)[1] }}",
+        "subject": "=Re: {{ $('Merge').item.json.subject }}",
+        "emailType": "text",
+        "message": "={{ $('AI Agent').item.json.output.reply }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -64,
+        -544
+      ],
+      "id": "0a200693-4110-4582-898e-b39852eb8bd8",
+      "name": "Send a message",
+      "webhookId": "5917f447-9136-4604-969e-b88d1164928d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JaX4sgcsTVNjnQu8",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "dd9fGFcUrRWYzE9A",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/dd9fGFcUrRWYzE9A",
+          "cachedResultName": "All Workflow — Vexlorai - Calling Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "customerName": "={{ $('Merge').item.json.sender.split('<')[0].trim() }}",
+            "phoneNumber": "={{ $('AI Agent').item.json.output.phone_number }}",
+            "projectContext": "={{ $('AI Agent').item.json.output.reply }}",
+            "customerEmail": "={{ $('Merge').item.json.sender.match(/<(.+)>/)[1] }}",
+            "leadScore": "={{ $('AI Agent').item.json.output.lead_score }}",
+            "airtableRecordId ": "={{ $('Create a record').item.json.id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "customerName",
+              "displayName": "customerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "phoneNumber",
+              "displayName": "phoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "projectContext",
+              "displayName": "projectContext",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "customerEmail",
+              "displayName": "customerEmail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "leadScore",
+              "displayName": "leadScore",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "airtableRecordId ",
+              "displayName": "airtableRecordId ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1200,
+        -304
+      ],
+      "id": "d3f3d580-88c6-4d6d-a570-0da387ca9b80",
+      "name": "Call 'Vexlorai - Calling Agent'"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_1376576528664633392"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        32
+      ],
+      "id": "c9148c82-5318-4abb-891a-39a94183cbb8",
+      "name": "New Lead - Add Label ",
+      "webhookId": "79dc8087-0f22-42cb-ac46-19d7f7c2a29b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JaX4sgcsTVNjnQu8",
+          "name": "Gmail OAuth2 API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Merge').item.json.sender.match(/<(.+)>/)[1] }}",
+        "subject": "=Re: {{ $('Merge').item.json.subject }}",
+        "emailType": "text",
+        "message": "={{ $('AI Agent').item.json.output.reply }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1104,
+        160
+      ],
+      "id": "0beed061-e7f5-4353-b05b-1777126b1910",
+      "name": "New Lead - Send Client Reply",
+      "webhookId": "224fffb0-7f36-4419-81cf-003df623b1d0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JaX4sgcsTVNjnQu8",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Hot Lead - Check Phone Number",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "New Lead - Add Label ",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "New Lead - Trello Card",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "New Lead - Gmail Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "New Lead - Send Client Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add label to message2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hot Lead - Check Phone Number",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Existing Client - Trello Card",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Existing Client - Owner Alert (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Complaint - Add Gmail Label (2)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Complaint - Owner Alert (Slack)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "General Inquiry - Client Reply (Gmail)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Build Memory Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Memory Context": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "company_knowledge_base",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "company_knowledge_base": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hot Lead - Find Customer Record": {
+      "main": [
+        [
+          {
+            "node": "Hot Lead - Update Customer Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hot Lead - Update Customer Record": {
+      "main": [
+        [
+          {
+            "node": "Hot Lead - Add Gmail Label",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hot Lead - Add Gmail Label": {
+      "main": [
+        [
+          {
+            "node": "Hot Lead - Owner Alert (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hot Lead - Check Phone Number": {
+      "main": [
+        [
+          {
+            "node": "Call 'Vexlorai - Calling Agent'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Hot Lead - Owner Alert (Gmail)": {
+      "main": [
+        [
+          {
+            "node": "Hot Lead - Owner Alert (Slack)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Hot Lead - Find Customer Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d9b8b62c-e7d2-4eba-a7f4-9ebf0186bef2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9463cb91a8eb2ac8a1faeb84786f6326f95b73272a43395565e311dae2ed37f8"
+  },
+  "nodeGroups": [],
+  "id": "krUCv0G6kKY03N9L",
+  "tags": []
+}

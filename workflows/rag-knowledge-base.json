@@ -1,0 +1,161 @@
+{
+  "name": "RAG Setup",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "eea4c82d-9d55-4bef-a4fa-a79215b6c45f",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "22719de6-89a0-4ba8-a60a-62f9e91ef8a4",
+              "name": "content",
+              "value": "AppCraft Studios — Company Knowledge Base\n\nThis document contains our official FAQs, pricing, and policies. Alex (our AI support agent) should always answer customer questions using the information below, not generic or made-up answers.\n\nABOUT US\nAppCraft Studios is a software house specializing in Android and iOS mobile app development. We have been building mobile apps for startups and small businesses since 2019. Our team includes developers, UI/UX designers, and QA testers.\n\nSERVICES WE OFFER\n- Android App Development — Native Android apps built with Kotlin.\n- iOS App Development — Native iOS apps built with Swift.\n- Cross-Platform Development — Flutter-based apps that run on both Android and iOS from a single codebase (faster and cheaper than building both natively).\n- UI/UX Design — Wireframes, prototypes, and full visual design for mobile apps.\n- App Maintenance & Updates — Bug fixes, OS compatibility updates, and feature additions for apps already in production.\n- App Store & Google Play Publishing — We handle the full submission process, including store listing optimization, screenshots, and compliance review.\n\nPRICING\nSimple app (single platform, basic features): $1,500 – $3,000, Timeline 3–5 weeks\nMedium complexity app (login, database, API integration): $3,000 – $7,000, Timeline 5–9 weeks\nComplex app (real-time features, payments, custom backend): $7,000 – $15,000+, Timeline 9–16 weeks\nCross-platform (Flutter, both Android + iOS): +20% over single-platform price\nUI/UX Design only (no development): $500 – $2,000, Timeline 1–3 weeks\nMonthly App Maintenance Retainer: $150 – $500/month, Ongoing\n\nPayment terms: We require 40% upfront, 30% at the midpoint milestone, and 30% upon final delivery.\nNote: These are estimate ranges. Every project gets a custom quote within 24 hours after we understand the app idea, platform, and required features.\n\nOUR PROCESS\n1. Discovery Call — We discuss your app idea, target users, and must-have features.\n2. Proposal & Quote — We send a written proposal with timeline and pricing within 24 hours.\n3. Design Phase — Wireframes and UI mockups for your approval.\n4. Development Phase — Build in 2-week sprints, with progress demos.\n5. Testing & QA — Bug fixing and performance testing before launch.\n6. Launch — App Store / Google Play submission and publishing.\n7. Post-Launch Support — Optional maintenance retainer for ongoing updates.\n\nFREQUENTLY ASKED QUESTIONS\n\nQ: How long does it take to build an app?\nA: Simple apps take 3–5 weeks. More complex apps with custom backends or real-time features can take 9–16 weeks. Exact timeline depends on features and platform.\n\nQ: Do you build for both Android and iOS?\nA: Yes. We can build native apps separately for each platform, or a single cross-platform app using Flutter that runs on both — which is usually faster and more cost-effective.\n\nQ: Can you just design the app without building it?\nA: Yes, we offer UI/UX design as a standalone service starting at $500.\n\nQ: Do you help publish the app on the App Store / Google Play?\nA: Yes, publishing and store listing setup is included in our full development packages.\n\nQ: What if I already have an app and just need updates or bug fixes?\nA: We offer app maintenance services starting at $150/month, or one-time fixes quoted based on the issue.\n\nQ: Do you sign NDAs?\nA: Yes, we're happy to sign a Non-Disclosure Agreement before discussing your app idea in detail.\n\nQ: What technologies do you use?\nA: Kotlin for native Android, Swift for native iOS, and Flutter for cross-platform apps. Backend work typically uses Node.js or Firebase depending on project needs.\n\nQ: Can you work with a fixed budget?\nA: Yes, let us know your budget and must-have features, and we'll scope a version of the app that fits.\n\nQ: Do you offer refunds?\nA: We don't offer refunds on completed milestones, but if a project is cancelled before a milestone is finished, you only pay for the work completed up to that point.\n\nESCALATION POLICY\n- Complaints or urgent bugs in a live app are escalated to the technical team within 2 hours.\n- Hot leads (clients with a clear budget, urgency, and buying intent) are routed directly to the owner for a same-day response.\n- General inquiries unrelated to app development are politely redirected back to our core services.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "9ddac686-d45e-4636-b3ff-89620481e4a7",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "company-knowledge-base",
+          "mode": "list",
+          "cachedResultName": "company-knowledge-base"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "4e87b827-5526-450d-976f-c61ae167b904",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "ZVuGdM0g8QtM3pn2",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        336,
+        208
+      ],
+      "id": "69f42b16-a4c0-4cc0-b39a-f69176582b12",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.content }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        208
+      ],
+      "id": "4584abc6-5f77-408d-ae7f-0bf7d1920a9c",
+      "name": "Default Data Loader"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a62dda2f-55f4-4ea6-b10f-9fc53602432c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9463cb91a8eb2ac8a1faeb84786f6326f95b73272a43395565e311dae2ed37f8"
+  },
+  "nodeGroups": [],
+  "id": "RXwBT94iEscv8Y4v",
+  "tags": []
+}
